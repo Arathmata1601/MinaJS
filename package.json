@@ -1,0 +1,29 @@
+{
+  "name": "mina-vue",
+  "private": true,
+  "version": "0.0.0",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "@coreui/vue": "^5.5.0",
+    "axios": "^1.10.0",
+    "bcrypt": "^6.0.0",
+    "bootstrap": "^5.3.7",
+    "bootstrap-icons": "^1.13.1",
+    "coreui": "^0.1.5",
+    "datatables.net": "^2.3.2",
+    "datatables.net-dt": "^2.3.2",
+    "jquery": "^3.7.1",
+    "vue": "^3.5.13",
+    "vue-final-modal": "^4.5.5",
+    "vue-router": "^4.5.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-vue": "^5.2.3",
+    "vite": "^6.3.5"
+  }
+}
