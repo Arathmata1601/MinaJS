@@ -1,5 +1,6 @@
 // Configuración base de la API
-const API_BASE_URL = 'http://localhost:5020/api';
+// const API_BASE_URL = 'http://localhost:5020/api'; // Configuración local comentada para uso posterior
+const API_BASE_URL = 'https://tu-backend-en-la-nube.com/api'; // Actualiza esta URL con la URL de tu backend desplegado
 
 // Clase para manejar las peticiones HTTP
 class ApiService {

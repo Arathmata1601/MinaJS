@@ -1,6 +1,7 @@
 const mysql = require("mysql2/promise");
 
-/*/ Crear conexión con la BD
+// Configuración local comentada para uso posterior
+/*
 const pool = mysql.createPool({
   host: process.env.DB_HOST || "localhost",
   user: process.env.DB_USER || "MinaUser",
@@ -9,13 +10,30 @@ const pool = mysql.createPool({
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
-});*/
+});
+*/
+
+// Configuración de variables de entorno comentada para uso posterior
+/*
 const pool = mysql.createPool({
   host: process.env.DB_HOST,
   user: process.env.DB_USER,
   password: process.env.DB_PASS,
   database: process.env.DB_NAME,
   port: process.env.DB_PORT || 3306,
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0
+});
+*/
+
+// Configuración para base de datos en la nube (Clever Cloud)
+const pool = mysql.createPool({
+  host: "b9i0yygjpbierbqjddid-mysql.services.clever-cloud.com",
+  user: "ubl0tmomek4dwval",
+  password: "x0WpwPlHtRbH3QNfsJIn",
+  database: "b9i0yygjpbierbqjddid",
+  port: 3306,
   waitForConnections: true,
   connectionLimit: 10,
   queueLimit: 0
