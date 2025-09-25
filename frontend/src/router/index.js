@@ -7,11 +7,13 @@ import Mineral from '../views/Mineral.vue'
 import Roca from '../views/Rocas.vue'
 import Logout from '../views/Logout.vue'
 import inventario from '../views/NuevoInventario.vue'
+import Diagnostico from '../views/Diagnostico.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/logout', component: Logout },
   { path: '/login', component: Login },
+  { path: '/diagnostico', component: Diagnostico }, // Sin autenticación para debugging
   { path: '/home', component: Home, meta: { requiresAuth: true }},
   { path: '/sala/:idSala', component: Sala1, meta: { requiresAuth: true } },
   { path: '/fosiles', component: Fosil, meta: { requiresAuth: true }},

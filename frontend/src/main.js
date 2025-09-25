@@ -6,6 +6,12 @@ import axios from 'axios'
 import 'vue-final-modal/style.css'
 import { createVfm } from 'vue-final-modal' // 👈 Importa el plugin
 
+// Configurar la URL base de axios directamente
+axios.defaults.baseURL = 'https://minajs-715x.onrender.com/api'
+
+// Debug: verificar la configuración
+console.log('🔧 Axios baseURL configurada:', axios.defaults.baseURL);
+
 // Configura interceptor de axios
 axios.interceptors.response.use(
   response => response,

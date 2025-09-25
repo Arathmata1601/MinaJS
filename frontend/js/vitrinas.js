@@ -1,24 +1,23 @@
 // src/api/vitrinas.js
-import axios from 'axios'
-
-//const API_URL = 'http://localhost:5020/api/vitrinas/por-sala/' // ajusta si es necesario
-const API_URL = import.meta.env.VITE_API_URL + '/api/vitrinas/por-sala/';
-
+import { salaService } from '../src/services/api.js'
 
 export async function obtenerVitrinasPorSala(idSala) {
   try {
-    const token = localStorage.getItem('token') // o sessionStorage si lo guardaste ahí
-
-    const response = await axios.get(`${API_URL}${idSala}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-
-    console.log('Respuesta cruda desde la API:', response.data)
-    return response.data[0]?.num_vitrinas || 0
+    console.log('🔍 Obteniendo vitrinas para sala:', idSala)
+    
+    // Usar el servicio de salas para obtener información de la sala
+    const sala = await salaService.getSalaById(idSala)
+    
+    console.log('📊 Respuesta de la sala:', sala)
+    
+    // Extraer el número de vitrinas
+    const numVitrinas = sala?.num_vitrinas || 0
+    
+    console.log('🏛️ Número de vitrinas encontradas:', numVitrinas)
+    
+    return numVitrinas
   } catch (error) {
-    console.error('Error al obtener vitrinas:', error)
-    return []
+    console.error('❌ Error al obtener vitrinas:', error)
+    return 0
   }
 }

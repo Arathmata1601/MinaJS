@@ -1,7 +1,4 @@
-import axios from 'axios'
-
-//const API_URL = 'http://localhost:5020/api/inventario/sala/'
-const API_URL = import.meta.env.VITE_API_URL + '/api/inventario/sala/';
+import { inventarioService } from '../src/services/api.js'
 
 /**
  * Obtiene todos los minerales y su información asociada para una sala específica
@@ -10,36 +7,54 @@ const API_URL = import.meta.env.VITE_API_URL + '/api/inventario/sala/';
  */
 export async function obtenerMineralesPorSala(idSala) {
   try {
-    const token = localStorage.getItem('token')
-    if (!token) {
-      throw new Error('No se encontró token de autenticación')
+    console.log('🔍 Obteniendo minerales para sala:', idSala)
+    
+    // Usar búsqueda de inventario con filtro de sala
+    const response = await inventarioService.searchInventario({ sala: idSala })
+    
+    console.log('📊 Respuesta de minerales por sala:', response)
+    
+    // Verificar si la respuesta tiene la estructura esperada
+    let data = response
+    if (response.success && response.data) {
+      data = response.data
     }
 
-    const response = await axios.get(`${API_URL}${idSala}`, {
-      headers: {
-        Authorization: `Bearer ${token}`
-      }
-    })
-
     // Validación básica de la respuesta
-    if (!response.data || !Array.isArray(response.data)) {
+    if (!data || !Array.isArray(data)) {
+      console.warn('⚠️ Respuesta no es un array válido:', data)
       return []
     }
 
-    // Mapeamos directamente la estructura que devuelve la API
-    return response.data.map(item => ({
-      id_invent: item.id_invent || null,
-      mineral: {
-        id_mineral: item.mineral?.id_mineral || null,
-        nombre_mineral: item.mineral?.nombre_mineral || 'Mineral sin nombre',
-        procedencia_mineral: item.mineral?.procedencia_mineral || 'Procedencia desconocida',
-        descripcion_mineral: item.mineral?.descripcion_mineral || 'Sin descripción disponible',
-        imagen_mineral: item.mineral?.imagen_mineral || null
-      },
-      vitrina: item.vitrina || 'N/D',
-      ubicacion: item.ubicacion || 'Ubicación no especificada',
-      estatus: item.estatus || 'Desconocido'
-    }))
+    console.log('✅ Datos válidos encontrados:', data.length, 'items')
+
+    // Mapeamos la estructura que devuelve la API (campos aplanados del JOIN)
+    const processedData = data.map((item, index) => {
+      console.log(`🔍 [${index + 1}/${data.length}] Procesando item del inventario:`, item);
+      
+      const processed = {
+        id_invent: item.id_invent || null,
+        mineral: {
+          id_mineral: item.id_mineral || null,
+          nombre_mineral: item.nombre_mineral || 'Mineral sin nombre',
+          procedencia_mineral: item.procedencia_mineral || 'Procedencia desconocida', 
+          descripcion_mineral: item.descripcion_mineral || 'Sin descripción disponible',
+          imagen_mineral: item.imagen_mineral || null,
+          clave_mineral: item.clave_mineral || null,
+          tipo: item.tipo || null
+        },
+        vitrina: item.vitrina || 'N/D',
+        ubicacion: item.ubicacion || 'Ubicación no especificada',
+        estatus: item.estatus_inventario || item.estatus || 'Desconocido',
+        sala: item.sala || null
+      }
+      
+      console.log(`✅ [${index + 1}/${data.length}] Item procesado:`, processed);
+      return processed;
+    })
+    
+    console.log('🎯 RESULTADO FINAL - Minerales procesados para retornar:', processedData);
+    return processedData;
 
   } catch (error) {
     console.error('Error al obtener minerales por sala:', error)

@@ -13,42 +13,17 @@ import Modal from '../components/Modal.vue'
 import { VueFinalModal } from 'vue-final-modal'
 import {guardarMineral} from '../../js/agregaMineral'
 import { eliminarMineral } from '../../js/eliminarMineral.js'
-import { salaService } from '../services/api.js'
+  showModalSala.value = true
+}
 
-// Estados reactivos
-const minerales = ref([])
-const searchQuery = ref('')
-const sortKey = ref('nombre_mineral')
-const sortAsc = ref(true)
-const loading = ref(true)
-const error = ref(null)
-const showModal = ref(false)
-const files = ref([])
-const uploadMessage = ref('')
-const previewUrls = ref([])
+// Función para subir archivos (placeholder)ort {
+    obtenerMineralesTipo
+} from '../../js/minerales.js'
+import Modal from '../components/Modal.vue'
+import { VueFinalModal } from 'vue-final-modal'
+import {guardarMineral} from '../../js/agregaMineral'
+import { eliminarMineral } from '../../js/eliminarMineral.js'
 
-// Estados para modales
-const mineralSeleccionado = ref(null)
-const showModalVer = ref(false)
-const showModalEditar = ref(false)
-const showModalSala = ref(false)
-// Variables para asignación de sala
-const salaSeleccionada = ref('')
-const vitrinaSeleccionada = ref('')
-const salasDisponibles = ref([])
-const loadingSalas = ref(false)
-
-// Datos del nuevo mineral
-const nuevoMineral = ref({
-  clave_mineral: '',
-  nombre_mineral: '',
-  descripcion_mineral: '',
-  procedencia_mineral: '',
-  tipo: '',
-  imagen_mineral: null
-})
-
-// Computed para ordenar y filtrar
 const sortedFilteredMinerales = computed(() => {
     let filtered = minerales.value.filter(m =>
         Object.values(m).some(val =>
@@ -66,7 +41,6 @@ const sortedFilteredMinerales = computed(() => {
     })
 })
 
-// Función para cambiar ordenamiento
 function changeSort(key) {
     if (sortKey.value === key) {
         sortAsc.value = !sortAsc.value
@@ -75,35 +49,37 @@ function changeSort(key) {
         sortAsc.value = true
     }
 }
-
-// Función para abrir modal
 const abrirModal = () => {
   showModal.value = true
 }
 
-// Función para cargar salas desde la base de datos
-const cargarSalas = async () => {
-  try {
-    loadingSalas.value = true
-    const salas = await salaService.getAllSalas()
-    salasDisponibles.value = salas
-  } catch (error) {
-    console.error('Error al cargar salas:', error)
-    salasDisponibles.value = []
-  } finally {
-    loadingSalas.value = false
-  }
-}
+// Estados reactivos
+const minerales = ref([])
+const searchQuery = ref('')
+const sortKey = ref('nombre_mineral')
+const sortAsc = ref(true)
+const loading = ref(true)
+const error = ref(null)
+const showModal = ref(false)
+const files = ref([])
+const uploadMessage = ref('')
+const previewUrls = ref([])
+
+// Datos del nuevo mineral
+const nuevoMineral = ref({
+  clave_mineral: '',
+  nombre_mineral: '',
+  descripcion_mineral: '',
+  procedencia_mineral: '',
+  tipo: '',
+  imagen_mineral: null // Cambiado a null para manejar array de bytes
+})
 
 // Cargar datos iniciales
 onMounted(async () => {
   try {
     loading.value = true
-    // Cargar minerales y salas en paralelo
-    await Promise.all([
-      obtenerMineralesTipo().then(data => minerales.value = data),
-      cargarSalas()
-    ])
+    minerales.value = await obtenerMineralesTipo()
   } catch (err) {
     console.error('Error:', err)
     error.value = 'Error al cargar los datos'
@@ -128,14 +104,13 @@ const handleFile = async (event) => {
     nuevoMineral.value.imagen_mineral = Array.from(new Uint8Array(arrayBuffer))
     previewUrls.value = [URL.createObjectURL(file)]
     uploadMessage.value = 'Imagen lista para subir'
-    files.value = [file]
+    files.value = [file] // Almacenamos el archivo para referencia
   } catch (error) {
     console.error('Error procesando imagen:', error)
     uploadMessage.value = 'Error al procesar imagen'
   }
 }
 
-// Función para agregar mineral
 const manejarAgregar = async () => {
   try {
     if (!nuevoMineral.value.nombre_mineral || !nuevoMineral.value.tipo) {
@@ -157,7 +132,7 @@ const manejarAgregar = async () => {
       descripcion_mineral: '',
       procedencia_mineral: '',
       tipo: '',
-      imagen_mineral: null
+      imagen_mineral_base64: ''
     }
     files.value = []
     previewUrls.value = []
@@ -167,8 +142,6 @@ const manejarAgregar = async () => {
     alert(`Error: ${error.message}`)
   }
 }
-
-// Función para eliminar mineral
 const manejarEliminar = async (id) => {
   const confirmado = confirm("¿Estás seguro de que deseas eliminar este mineral?");
   if (!confirmado) return;
@@ -180,6 +153,12 @@ const manejarEliminar = async (id) => {
     alert("Hubo un error al eliminar el mineral");
   }
 }
+
+
+const mineralSeleccionado = ref(null)
+const showModalVer = ref(false)
+const showModalEditar = ref(false)
+const showModalSala = ref(false)
 
 // Función para ver detalles del mineral
 const verMineral = (mineral) => {
@@ -194,21 +173,33 @@ const editarMineral = (mineral) => {
 }
 
 // Función para asignar sala
-const asignarSala = async (mineral) => {
+const asignarSala = (mineral) => {
   mineralSeleccionado.value = mineral
-  
-  // Si no hay salas cargadas, cargarlas
-  if (salasDisponibles.value.length === 0) {
-    await cargarSalas()
-  }
-  
   showModalSala.value = true
 }
 
-// Función para subir archivos
+// Función para cambiar ordenamiento
+const changeSort = (key) => {
+  if (sortKey.value === key) {
+    sortAsc.value = !sortAsc.value
+  } else {
+    sortKey.value = key
+    sortAsc.value = true
+  }
+}
+
+// Función para abrir modal de agregar
+const abrirModal = () => {
+  showModal.value = true
+}
+
+// Función para subir archivos (placeholder)
 const uploadFiles = () => {
   uploadMessage.value = 'Función de subida no implementada aún'
 }
+
+// Variables para asignación de sala
+const salaSeleccionada = ref('')
 
 // Función para guardar edición
 const guardarEdicion = async () => {
@@ -229,60 +220,55 @@ const guardarEdicion = async () => {
 // Función para confirmar asignación de sala
 const confirmarAsignacion = async () => {
   try {
-    if (!salaSeleccionada.value || !vitrinaSeleccionada.value) {
-      alert('Por favor selecciona sala y vitrina')
+    if (!salaSeleccionada.value) {
+      alert('Por favor selecciona una sala')
       return
     }
-    
-    // Buscar información de la sala seleccionada
-    const sala = salasDisponibles.value.find(s => (s.id_sala || s.id) == salaSeleccionada.value)
-    const nombreSala = sala ? (sala.nombre_sala || `Sala ${sala.id_sala || sala.id}`) : `Sala ${salaSeleccionada.value}`
-    
-    // Aquí iría la lógica para asignar a sala y vitrina en la base de datos
-    // Por ejemplo: await inventarioService.asignarMineralASala(mineralSeleccionado.value.id_mineral, salaSeleccionada.value, vitrinaSeleccionada.value)
-    
-    alert(`Mineral "${mineralSeleccionado.value.nombre_mineral}" asignado a ${nombreSala}, Vitrina ${vitrinaSeleccionada.value}`)
-    
-    // Limpiar y cerrar modal
+    // Aquí iría la lógica para asignar a sala
+    alert(`Mineral asignado a Sala ${salaSeleccionada.value}`)
     showModalSala.value = false
     salaSeleccionada.value = ''
-    vitrinaSeleccionada.value = ''
-    mineralSeleccionado.value = null
-    
   } catch (error) {
     console.error('Error al asignar sala:', error)
     alert(`Error: ${error.message}`)
   }
 }
+
+
 </script>
 
 <template>
 <Header />
 
-<!-- Modal Agregar Mineral -->
 <Modal
   v-model="showModal"
   title="Nuevo mineral"
   @agregar="manejarAgregar"
 >
-  <input v-model="nuevoMineral.clave_mineral" placeholder="Clave del mineral" />
-  <input v-model="nuevoMineral.nombre_mineral" placeholder="Nombre del mineral" />
-  <textarea v-model="nuevoMineral.descripcion_mineral" placeholder="Descripción:" />
-  <input v-model="nuevoMineral.procedencia_mineral" placeholder="Procedencia" />
-  <select v-model="nuevoMineral.tipo">
-    <option disabled value="">Seleccione tipo</option>
-    <option>Fósil</option>
-    <option>Mineral</option>
-    <option>Roca</option>
-  </select>
 
-  <div class="uploader">
+<input v-model="nuevoMineral.clave_mineral" placeholder="Clave del mineral" />
+<input v-model="nuevoMineral.nombre_mineral" placeholder="Nombre del mineral" />
+<textarea v-model="nuevoMineral.descripcion_mineral" placeholder="Descripción:" />
+<input v-model="nuevoMineral.procedencia_mineral" placeholder="Procedencia" />
+<select v-model="nuevoMineral.tipo">
+  <option disabled value="">Seleccione tipo</option>
+  <option >Fósil</option>
+  <option >Mineral</option>
+  <option >Roca</option>
+</select>
+
+
+
+<div class="uploader">
     <h2>Subir imagen</h2>
+
     <input type="file" @change="handleFile" accept="image/*" multiple />
     <button @click="uploadFiles" :disabled="!files.length">Subir</button>
+
     <ul>
       <li v-for="(file, index) in files" :key="index">{{ file.name }}</li>
     </ul>
+
     <div v-if="uploadMessage">{{ uploadMessage }}</div>
   </div>
 </Modal>
@@ -325,44 +311,13 @@ const confirmarAsignacion = async () => {
 >
   <div v-if="mineralSeleccionado">
     <p><strong>Mineral:</strong> {{ mineralSeleccionado.nombre_mineral }}</p>
-    
-    <div v-if="loadingSalas" class="text-center">
-      <p>Cargando salas...</p>
-    </div>
-    
-    <div v-else>
-      <div class="mb-3">
-        <label for="salaSelect" class="form-label">Seleccionar Sala:</label>
-        <select id="salaSelect" v-model="salaSeleccionada" class="form-select">
-          <option disabled value="">Seleccionar sala</option>
-          <option 
-            v-for="sala in salasDisponibles" 
-            :key="sala.id_sala || sala.id" 
-            :value="sala.id_sala || sala.id"
-          >
-            {{ sala.nombre_sala || `Sala ${sala.id_sala || sala.id}` }}
-          </option>
-        </select>
-      </div>
-      
-      <div v-if="salaSeleccionada" class="mb-3">
-        <label for="vitrinaSelect" class="form-label">Seleccionar Vitrina:</label>
-        <select id="vitrinaSelect" v-model="vitrinaSeleccionada" class="form-select">
-          <option disabled value="">Seleccionar vitrina</option>
-          <option v-for="n in 10" :key="n" :value="n">
-            Vitrina {{ n }}
-          </option>
-        </select>
-      </div>
-      
-      <button 
-        class="btn btn-primary" 
-        @click="confirmarAsignacion"
-        :disabled="!salaSeleccionada || !vitrinaSeleccionada"
-      >
-        Asignar
-      </button>
-    </div>
+    <select v-model="salaSeleccionada">
+      <option disabled value="">Seleccionar sala</option>
+      <option value="1">Sala 1</option>
+      <option value="2">Sala 2</option>
+      <option value="3">Sala 3</option>
+    </select>
+    <button class="btn btn-primary" @click="confirmarAsignacion">Asignar</button>
   </div>
 </Modal>
 
@@ -373,7 +328,7 @@ const confirmarAsignacion = async () => {
 <div class="container mt-4">
     <h2 class="mb-3">Minerales Registrados</h2>
 
-    <input v-model="searchQuery" type="text" class="form-control mb-3" placeholder="Buscar mineral..." />
+    <input v-model="searchQuery" type="text" class="form-control mb-3" placeholder="Buscar fósil..." />
 
     <div v-if="loading" class="alert alert-info text-center">
         Cargando información de minerales...
@@ -386,16 +341,16 @@ const confirmarAsignacion = async () => {
         <table class="table table-bordered table-hover">
             <thead>
                 <tr>
-                    <th @click="changeSort('id_mineral')">Clave</th>
-                    <th @click="changeSort('nombre_mineral')">Nombre</th>
-                    <th @click="changeSort('procedencia_mineral')">Procedencia</th>
+                    <th @click="changeSort('id_mineral')">Clave </th>
+                    <th @click="changeSort('nombre_mineral')">Nombre </th>
+                    <th @click="changeSort('procedencia_mineral')">Procedencia </th>
                     <th>Imagen</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
             <tbody>
                 <tr v-if="sortedFilteredMinerales.length === 0">
-                    <td colspan="5" class="text-center">No hay minerales registrados.</td>
+                    <td colspan="5" class="text-center">No hay rocas registrados.</td>
                 </tr>
                 <tr v-else v-for="mineral in sortedFilteredMinerales" :key="mineral.id_mineral">
                     <td>{{ mineral.clave_mineral || 'N/D' }}</td>
@@ -427,19 +382,19 @@ const confirmarAsignacion = async () => {
 th {
     cursor: pointer;
 }
-
 input,
 textarea,
 select {
   border-radius: 8px;
-  margin: 5px;
+  margin:5px;
+  
 }
-
 p,
 span,
-.span {
-    text-align: left;
+.span{
+    text-align:left;
     margin: 10px;
-    padding: 1px;
+    padding:1px;
 }
+
 </style>

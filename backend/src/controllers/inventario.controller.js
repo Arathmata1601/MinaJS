@@ -144,7 +144,15 @@ exports.getMineralesDisponibles = async (req, res) => {
 exports.searchInventario = async (req, res) => {
   try {
     const filters = req.query; // Obtener filtros de los query parameters
+    console.log('🔍 Búsqueda de inventario con filtros:', filters);
+    
     const inventario = await Inventario.searchInventario(filters);
+    
+    console.log('📦 Datos de inventario encontrados:', {
+      count: inventario.length,
+      firstItem: inventario.length > 0 ? inventario[0] : null,
+      sampleData: inventario.slice(0, 2)
+    });
     
     res.json({
       success: true,

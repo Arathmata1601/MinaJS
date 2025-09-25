@@ -17,19 +17,37 @@ const props = defineProps({
 const placeholder = ejemplo
 
 const imageSrc = computed(() => {
-  if (!props.encodedImage) return placeholder
+  console.log('🖼️ ImageDecoder - Imagen recibida:', {
+    encodedImage: props.encodedImage,
+    hasImage: !!props.encodedImage,
+    length: props.encodedImage?.length,
+    preview: props.encodedImage?.substring(0, 50) + '...'
+  })
+  
+  if (!props.encodedImage) {
+    console.log('⚠️ ImageDecoder - No hay imagen, usando placeholder')
+    return placeholder
+  }
+  
   if (props.encodedImage.startsWith('data:image')) {
+    console.log('✅ ImageDecoder - Imagen ya tiene formato data:image')
     return props.encodedImage
   }
-  return `data:image/jpeg;base64,${props.encodedImage}`
+  
+  const dataUrl = `data:image/jpeg;base64,${props.encodedImage}`
+  console.log('🔧 ImageDecoder - Convirtiendo a data URL:', dataUrl.substring(0, 50) + '...')
+  return dataUrl
 })
 
-function handleImageError() {
-  // Si quieres cambiar la imagen a placeholder al fallar
-  // no puedes modificar `imageSrc` directamente porque es computed,
-  // así que necesitas emitir un evento o usar una variable reactiva aparte.
-  // Por ahora solo emite error:
-  console.warn('Imagen falló al cargar')
+function handleImageError(event) {
+  console.error('❌ ImageDecoder - Error al cargar imagen:', {
+    src: event.target.src,
+    encodedImage: props.encodedImage,
+    altText: props.altText
+  })
+  
+  // Cambiar a placeholder cuando falle
+  event.target.src = placeholder
 }
 </script>
 

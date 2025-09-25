@@ -4,7 +4,14 @@ const app = express();
 
 // Middlewares
 app.use(cors({
-  origin: ['http://localhost:5173', 'http://localhost:5020', 'http://localhost:3000', 'http://127.0.0.1:5173'],
+  origin: [
+    'http://localhost:5173', 
+    'http://localhost:5020', 
+    'http://localhost:3000', 
+    'http://127.0.0.1:5173',
+    'https://your-frontend-domain.com', // Agregar aquí tu dominio de frontend desplegado
+    '*' // Temporalmente permitir todos los orígenes para testing
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization']
@@ -19,6 +26,15 @@ const salaRoutes = require("./routes/salas.routes");
 const inventarioRoutes = require("./routes/inventario.routes");
 const ventasRoutes = require("./routes/ventas.routes");
 
+
+// Ruta de prueba para verificar que el API está funcionando
+app.get("/api/health", (req, res) => {
+  res.json({ 
+    status: "OK", 
+    message: "API is working", 
+    timestamp: new Date().toISOString() 
+  });
+});
 
 app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);

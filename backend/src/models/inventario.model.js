@@ -175,6 +175,8 @@ async function searchInventario(filters) {
       m.clave_mineral,
       m.nombre_mineral,
       m.descripcion_mineral,
+      m.procedencia_mineral,
+      m.imagen_mineral,
       m.tipo,
       m.estatus as estatus_mineral
     FROM inventario_minerales i
