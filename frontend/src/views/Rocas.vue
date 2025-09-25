@@ -8,11 +8,11 @@ import Header from '../components/Header.vue'
 import ImageDecoder from '../components/ImageDecoder.vue'
 import {
     obtenerMineralesTipo
-} from '../../js/rocas.js'
+} from '../utils/rocas.js'
 import Modal from '../components/Modal.vue'
 import { VueFinalModal } from 'vue-final-modal'
-import {guardarMineral} from '../../js/agregaMineral'
-import { eliminarMineral } from '../../js/eliminarMineral.js'
+import {guardarMineral} from '../utils/agregaMineral.js'
+import { eliminarMineral } from '../utils/eliminarMineral.js'
 
 const sortedFilteredMinerales = computed(() => {
     let filtered = minerales.value.filter(m =>

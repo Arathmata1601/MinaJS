@@ -7,15 +7,15 @@ import {
 import Header from '../components/Header.vue'
 import {
     obtenerVitrinasPorSala
-} from '../../js/vitrinas.js'
+} from '../utils/vitrinas.js'
 import {
     obtenerMineralesPorSala
-} from '../../js/obtenerMinerales.js'
+} from '../utils/obtenerMinerales.js'
 import ImageDecoder from '../components/ImageDecoder.vue'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap'
 import { useRoute } from 'vue-router'
-import {obtenerMinerales} from '../../js/todosMinerales.js'
+import {obtenerMinerales} from '../utils/todosMinerales.js'
 import Modal from '../components/Modal.vue'
 import { VueFinalModal } from 'vue-final-modal'
 const route = useRoute()

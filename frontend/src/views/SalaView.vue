@@ -7,10 +7,10 @@ import {
 import Header from '../components/Header.vue'
 import {
     obtenerVitrinasPorSala
-} from '../../js/vitrinas.js'
+} from '../utils/vitrinas.js'
 import {
     obtenerMineralesPorSala
-} from '../../js/obtenerMinerales.js'
+} from '../utils/obtenerMinerales.js'
 import ImageDecoder from '../components/ImageDecoder.vue'
 import 'bootstrap/dist/css/bootstrap.min.css'
 import 'bootstrap'
