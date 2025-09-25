@@ -9,7 +9,7 @@ app.use(cors({
     'http://localhost:5020', 
     'http://localhost:3000', 
     'http://127.0.0.1:5173',
-    'https://your-frontend-domain.com', // Agregar aquí tu dominio de frontend desplegado
+    'https://minajs-1.onrender.com/login', // Agregar aquí tu dominio de frontend desplegado
     '*' // Temporalmente permitir todos los orígenes para testing
   ],
   credentials: true,
