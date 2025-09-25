@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "vite",
     "preview": "vite preview",
-    "start": "react-scripts start",
-    "build": "react-scripts build"
+    "build": "vite build"
   },
   "dependencies": {
     "@coreui/vue": "^5.5.0",
