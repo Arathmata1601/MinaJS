@@ -1,9 +1,9 @@
 // Configuración base de la API
- const API_BASE_URL = 'http://localhost:5020/api'; // Configuración local comentada para uso posterior
+ //const API_BASE_URL = 'http://localhost:5020/api'; // Configuración local comentada para uso posterior
  export { API_BASE_URL };
 
 // Forzar el uso de la URL de producción
-//const API_BASE_URL = 'https://minajs-715x.onrender.com/api'; // Backend desplegado en Render
+const API_BASE_URL = 'https://minajs-715x.onrender.com/api'; // Backend desplegado en Render
 
 // Verificar que la URL esté configurada correctamente
 console.log('🔧 API_BASE_URL configurada:', API_BASE_URL);
