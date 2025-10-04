@@ -23,19 +23,19 @@ app.use(cors({
   optionsSuccessStatus: 204
 }));
 
-// Manejar peticiones OPTIONS explícitamente
-app.options('*', cors());
+// Manejar peticiones OPTIONS explícitamente (removido porque CORS ya lo maneja automáticamente)
+// app.options('*', cors());
 // Aumentar límite para cuerpos grandes (por ejemplo subidas multipart y JSON grandes)
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
 
 // Rutas
-const userRoutes = require("./routes/user.routes");
+// const userRoutes = require("./routes/user.routes");
 const authRoutes = require("./routes/auth.routes");
-const mineralRoutes = require("./routes/mineral.routes");
-const salaRoutes = require("./routes/salas.routes");
-const inventarioRoutes = require("./routes/inventario.routes");
-const ventasRoutes = require("./routes/ventas.routes");
+// const mineralRoutes = require("./routes/mineral.routes");
+// const salaRoutes = require("./routes/salas.routes");
+// const inventarioRoutes = require("./routes/inventario.routes");
+// const ventasRoutes = require("./routes/ventas.routes");
 const importRoutes = require("./routes/import.routes");
 
 
@@ -48,12 +48,13 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-app.use("/api/users", userRoutes);
+// Comentar temporalmente las rutas para encontrar el problema
 app.use("/api/auth", authRoutes);
-app.use("/api/mineral", mineralRoutes);
-app.use("/api/salas", salaRoutes);
-app.use("/api/inventario", inventarioRoutes);
-app.use("/api/ventas", ventasRoutes);
+// app.use("/api/users", userRoutes);
+// app.use("/api/mineral", mineralRoutes);
+// app.use("/api/salas", salaRoutes);
+// app.use("/api/inventario", inventarioRoutes);
+// app.use("/api/ventas", ventasRoutes);
 app.use("/api/import", importRoutes);
 
 // Servir imágenes estáticas (guardadas por el import)
