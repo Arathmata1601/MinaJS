@@ -40,6 +40,16 @@ const pool = mysql.createPool({
   queueLimit: 0
 });
 
+// Verificar conexión al inicializar
+pool.getConnection()
+  .then(connection => {
+    console.log('✅ Conexión exitosa a la base de datos');
+    connection.release();
+  })
+  .catch(err => {
+    console.error('❌ Error conectando a la base de datos:', err);
+  });
+
 
 // Manejar errores del pool
 pool.on('connection', (connection) => {
