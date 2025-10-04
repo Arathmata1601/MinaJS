@@ -10,14 +10,21 @@ app.use((req, res, next) => {
 
 // Middlewares
 app.use(cors({
-  origin: true, // Permitir todos los orígenes temporalmente para debug
+  origin: [
+    'https://minajs-1.onrender.com',
+    'http://localhost:5173',
+    'http://localhost:3000'
+  ],
   credentials: true,
   methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With'],
+  allowedHeaders: ['Content-Type', 'Authorization', 'X-Requested-With', 'Accept'],
   exposedHeaders: ['Content-Length', 'X-Foo', 'X-Bar'],
   preflightContinue: false,
-  optionsSuccessStatus: 200
+  optionsSuccessStatus: 204
 }));
+
+// Manejar peticiones OPTIONS explícitamente
+app.options('*', cors());
 // Aumentar límite para cuerpos grandes (por ejemplo subidas multipart y JSON grandes)
 app.use(express.json({ limit: '100mb' }));
 app.use(express.urlencoded({ extended: true, limit: '100mb' }));
