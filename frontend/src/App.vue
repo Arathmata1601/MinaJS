@@ -48,7 +48,7 @@ body {
 }
 
 body.modo-oscuro {
-  background-color: #121212;
+  background-color: #393939;
   color: white;
   text-align: center;
 }

@@ -28,6 +28,7 @@ const pool = mysql.createPool({
 */
 
 // Configuración para base de datos en la nube (Clever Cloud)
+
 const pool = mysql.createPool({
   host: "b9i0yygjpbierbqjddid-mysql.services.clever-cloud.com",
   user: "ubl0tmomek4dwval",

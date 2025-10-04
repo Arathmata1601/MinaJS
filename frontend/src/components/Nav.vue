@@ -11,9 +11,12 @@ const props = defineProps({
 <template>
   <div class="navbar">
     <RouterLink to="/home">Inicio</RouterLink>
-    <RouterLink to="/fosiles">Fósiles</RouterLink>
+
+    <!--<RouterLink to="/fosiles">Fósiles</RouterLink>
     <RouterLink to="/minerales">Minerales</RouterLink>
-    <RouterLink to="/rocas">Rocas</RouterLink>
+    <RouterLink to="/rocas">Rocas</RouterLink>-->
+    <RouterLink to="/colecciones">Colecciones</RouterLink>
+    <RouterLink to="/venta">Punto de Venta</RouterLink>
     <RouterLink to="/logout">Cerrar Sesión</RouterLink>
 
     <label class="switch">

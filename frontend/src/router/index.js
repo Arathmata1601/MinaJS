@@ -5,20 +5,24 @@ import Sala1 from '../views/SalaView.vue'
 import Fosil from '../views/Fosil.vue'
 import Mineral from '../views/Mineral.vue'
 import Roca from '../views/Rocas.vue'
+import PuntoVenta from '../views/PuntoVenta.vue'
 import Logout from '../views/Logout.vue'
 import inventario from '../views/NuevoInventario.vue'
 import Diagnostico from '../views/Diagnostico.vue'
+import Collecciones from '../views/Collecciones.vue'
 
 const routes = [
   { path: '/', redirect: '/login' },
   { path: '/logout', component: Logout },
   { path: '/login', component: Login },
-  { path: '/diagnostico', component: Diagnostico }, // Sin autenticación para debugging
+  { path: '/diagnostico', component: Diagnostico }, // Sin autenticación
+  { path: '/colecciones', component: Collecciones, meta: { requiresAuth: true }},
   { path: '/home', component: Home, meta: { requiresAuth: true }},
   { path: '/sala/:idSala', component: Sala1, meta: { requiresAuth: true } },
   { path: '/fosiles', component: Fosil, meta: { requiresAuth: true }},
   { path: '/minerales', component: Mineral, meta: { requiresAuth: true }},
   { path: '/rocas', component: Roca, meta: { requiresAuth: true }},
+  { path: '/venta', component: PuntoVenta, meta: { requiresAuth: true }},
   { path: '/inventario', component: inventario, meta: { requiresAuth: true } }
 ]
 

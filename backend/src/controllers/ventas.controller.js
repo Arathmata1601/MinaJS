@@ -46,100 +46,76 @@ exports.getVentaById = async (req, res) => {
 
 exports.createVenta = async (req, res) => {
   try {
-    // Validaciones básicas
-    const { subtotal, iva, total, id_user, minerales } = req.body;
+    console.log('=== DEBUG CREATE VENTA ===');
+    console.log('[ventas] Headers completos:', JSON.stringify(req.headers, null, 2));
+    console.log('[ventas] Token extraído:', req.headers.authorization);
+    console.log('[ventas] req.user completo:', JSON.stringify(req.user, null, 2));
+    console.log('[ventas] Body de la petición:', JSON.stringify(req.body, null, 2));
+    console.log('========================');
+    // Obtener datos del body
+    const { subtotal, iva, total, minerales } = req.body;
 
-    if (!subtotal || !total || !id_user) {
-      return res.status(400).json({
-        success: false,
-        error: "Los campos subtotal, total e id_user son requeridos"
-      });
+    // Validaciones básicas
+    if (subtotal === undefined || total === undefined) {
+      return res.status(400).json({ success: false, error: 'Los campos subtotal y total son requeridos' });
     }
 
     if (!minerales || !Array.isArray(minerales) || minerales.length === 0) {
-      return res.status(400).json({
-        success: false,
-        error: "Debe incluir al menos un mineral en la venta"
-      });
+      return res.status(400).json({ success: false, error: 'Debe incluir al menos un mineral en la venta' });
     }
 
     // Calcular IVA si no se proporciona
-    const ivaCalculado = iva || (subtotal * 0.16);
-    const totalCalculado = subtotal + ivaCalculado;
+    const ivaCalculado = iva !== undefined ? iva : (subtotal * 0.16);
+    const totalCalculado = +(subtotal + ivaCalculado).toFixed(2);
 
-    // Verificar que el total coincida
+    // Verificar que el total coincida (tolerancia 0.01)
     if (Math.abs(totalCalculado - total) > 0.01) {
-      return res.status(400).json({
-        success: false,
-        error: "El total no coincide con subtotal + IVA"
-      });
+      return res.status(400).json({ success: false, error: 'El total no coincide con subtotal + IVA' });
     }
 
-    const ventaData = {
-      subtotal,
-      iva: ivaCalculado,
-      total,
-      id_user,
-      minerales
-    };
+    const ventaData = { subtotal, iva: ivaCalculado, total, minerales };
 
+    console.log('[ventas] Llamando a Ventas.createVenta con:', ventaData);
     const nuevaVenta = await Ventas.createVenta(ventaData);
-    res.status(201).json({
-      success: true,
-      data: nuevaVenta,
-      message: "Venta creada correctamente"
-    });
+    console.log('[ventas] ✅ Venta creada exitosamente:', nuevaVenta);
+    
+    const response = { success: true, data: nuevaVenta, message: 'Venta creada correctamente' };
+    console.log('[ventas] 📤 Enviando respuesta:', response);
+    
+    res.status(201).json(response);
   } catch (err) {
-    console.error("Error al crear venta:", err);
-    res.status(500).json({ 
-      success: false,
-      error: "Error al crear venta", 
-      details: err.message 
-    });
+    console.error('[ventas] ❌ ERROR AL CREAR VENTA:');
+    console.error('[ventas] Error completo:', err);
+    console.error('[ventas] Stack trace:', err.stack);
+    console.error('[ventas] SQL Error code:', err.code);
+    console.error('[ventas] SQL Error message:', err.sqlMessage);
+    res.status(500).json({ success: false, error: 'Error al crear venta', details: err.message });
   }
 };
 
 exports.updateVenta = async (req, res) => {
   try {
-    const { subtotal, iva, total, id_user, minerales } = req.body;
+    console.log('[ventas] updateVenta called - headers.Authorization:', (req.headers && req.headers.authorization) ? req.headers.authorization.slice(0,60) + (req.headers.authorization.length>60? '...' : '') : req.headers.authorization);
+    console.log('[ventas] updateVenta - req.user:', req.user);
+    // Ya no necesitamos validar usuario para las ventas
+
+    const { subtotal, iva, total, minerales } = req.body;
 
     // Validaciones básicas
-    if (!subtotal || !total || !id_user) {
-      return res.status(400).json({
-        success: false,
-        error: "Los campos subtotal, total e id_user son requeridos"
-      });
+    if (subtotal === undefined || total === undefined) {
+      return res.status(400).json({ success: false, error: 'Los campos subtotal y total son requeridos' });
     }
 
-    const ventaData = {
-      subtotal,
-      iva: iva || (subtotal * 0.16),
-      total,
-      id_user,
-      minerales
-    };
+    const ventaData = { subtotal, iva: iva || (subtotal * 0.16), total, minerales };
 
     const ventaActualizada = await Ventas.updateVenta(req.params.id, ventaData);
-    res.json({
-      success: true,
-      data: ventaActualizada,
-      message: "Venta actualizada correctamente"
-    });
+    res.json({ success: true, data: ventaActualizada, message: 'Venta actualizada correctamente' });
   } catch (err) {
-    console.error("Error al actualizar venta:", err);
-    
-    if (err.message.includes("no existe")) {
-      return res.status(404).json({
-        success: false,
-        error: err.message
-      });
+    console.error('Error al actualizar venta:', err);
+    if (err.message.includes('no existe')) {
+      return res.status(404).json({ success: false, error: err.message });
     }
-    
-    res.status(500).json({ 
-      success: false,
-      error: "Error al actualizar venta", 
-      details: err.message 
-    });
+    res.status(500).json({ success: false, error: 'Error al actualizar venta', details: err.message });
   }
 };
 

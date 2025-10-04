@@ -11,7 +11,7 @@ async function getMineralById(id) {
 }
 
 async function getMineralByMineral(){
-  const [rows] = await pool.query("SELECT * FROM minerales WHERE tipo = 'Mineral'");
+  const [rows] = await pool.query("SELECT * FROM minerales WHERE tipo = 'mineral'");
   return rows;
 
 }
@@ -29,7 +29,8 @@ async function createMineral(mineral) {
     descripcion_mineral, 
     no_caja,
     no_mediana,
-    imagen_mineral,
+      imagen_mineral,
+      imagen, 
     fecha, 
     observacion, 
     luminiscencia, 
@@ -52,7 +53,8 @@ async function createMineral(mineral) {
       descripcion_mineral || '', 
       no_caja || '',
       no_mediana || null,
-      imagen_mineral || '',
+        imagen_mineral || '',
+        imagen || null,
       fecha, 
       observacion || '', 
       luminiscencia || '', 
@@ -78,6 +80,7 @@ async function updateMineral(id, mineral) {
     no_caja,
     no_mediana,
     imagen_mineral,
+    imagen,
     fecha, 
     observacion, 
     luminiscencia, 
@@ -101,7 +104,8 @@ async function updateMineral(id, mineral) {
       descripcion_mineral, 
       no_caja,
       no_mediana,
-      imagen_mineral,
+  imagen_mineral,
+  imagen,
       fecha, 
       observacion, 
       luminiscencia, 

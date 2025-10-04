@@ -20,6 +20,12 @@ const minerales = ref([])
 const searchQuery = ref('')
 const sortKey = ref('nombre_mineral')
 const sortAsc = ref(true)
+// Pagination and filters
+const currentPage = ref(1)
+const pageSize = ref(10)
+const pageSizes = [5, 10, 20, 50]
+const filterTipo = ref('')
+const filterEstatus = ref('')
 const loading = ref(true)
 const error = ref(null)
 const showModal = ref(false)
@@ -50,20 +56,38 @@ const nuevoMineral = ref({
 
 // Computed para ordenar y filtrar
 const sortedFilteredMinerales = computed(() => {
-    let filtered = minerales.value.filter(m =>
-        Object.values(m).some(val =>
-            String(val).toLowerCase().includes(searchQuery.value.toLowerCase())
-        )
+  let filtered = minerales.value.filter(m =>
+    Object.values(m).some(val =>
+      String(val).toLowerCase().includes(searchQuery.value.toLowerCase())
     )
+  )
 
-    return filtered.sort((a, b) => {
-        const key = sortKey.value
-        const aVal = a[key] || ''
-        const bVal = b[key] || ''
-        if (aVal < bVal) return sortAsc.value ? -1 : 1
-        if (aVal > bVal) return sortAsc.value ? 1 : -1
-        return 0
-    })
+  // Apply tipo filter if set
+ 
+
+  // Apply estatus filter if set
+  if (filterEstatus.value) {
+    filtered = filtered.filter(m => (m.estatus || '').toLowerCase() === filterEstatus.value.toLowerCase())
+  }
+
+  const sorted = filtered.sort((a, b) => {
+    const key = sortKey.value
+    const aVal = a[key] || ''
+    const bVal = b[key] || ''
+    if (aVal < bVal) return sortAsc.value ? -1 : 1
+    if (aVal > bVal) return sortAsc.value ? 1 : -1
+    return 0
+  })
+
+  return sorted
+})
+
+// Derived paged items and counts
+const totalItems = computed(() => sortedFilteredMinerales.value.length)
+const totalPages = computed(() => Math.max(1, Math.ceil(totalItems.value / pageSize.value)))
+const pagedMinerales = computed(() => {
+  const start = (currentPage.value - 1) * pageSize.value
+  return sortedFilteredMinerales.value.slice(start, start + pageSize.value)
 })
 
 // Función para cambiar ordenamiento
@@ -102,7 +126,7 @@ onMounted(async () => {
     // Cargar minerales y salas en paralelo
     await Promise.all([
       obtenerMineralesTipo().then(data => minerales.value = data),
-      cargarSalas()
+      
     ])
   } catch (err) {
     console.error('Error:', err)
@@ -269,13 +293,6 @@ const confirmarAsignacion = async () => {
   <input v-model="nuevoMineral.nombre_mineral" placeholder="Nombre del mineral" />
   <textarea v-model="nuevoMineral.descripcion_mineral" placeholder="Descripción:" />
   <input v-model="nuevoMineral.procedencia_mineral" placeholder="Procedencia" />
-  <select v-model="nuevoMineral.tipo">
-    <option disabled value="">Seleccione tipo</option>
-    <option>Fósil</option>
-    <option>Mineral</option>
-    <option>Roca</option>
-  </select>
-
   <div class="uploader">
     <h2>Subir imagen</h2>
     <input type="file" @change="handleFile" accept="image/*" multiple />
@@ -297,9 +314,9 @@ const confirmarAsignacion = async () => {
     <p><strong>Nombre:</strong> {{ mineralSeleccionado.nombre_mineral || 'N/D' }}</p>
     <p><strong>Descripción:</strong> {{ mineralSeleccionado.descripcion_mineral || 'N/D' }}</p>
     <p><strong>Procedencia:</strong> {{ mineralSeleccionado.procedencia_mineral || 'N/D' }}</p>
-    <div v-if="mineralSeleccionado.imagen_mineral">
+    <div>
       <strong>Imagen:</strong><br>
-      <ImageDecoder :encoded-image="mineralSeleccionado.imagen_mineral" alt-text="Imagen del mineral" img-class="img-fluid" />
+      <ImageDecoder :encoded-image="mineralSeleccionado.imagen_mineral" :id="mineralSeleccionado?.id_mineral" alt-text="Imagen del mineral" img-class="img-fluid" />
     </div>
   </div>
 </Modal>
@@ -373,7 +390,28 @@ const confirmarAsignacion = async () => {
 <div class="container mt-4">
     <h2 class="mb-3">Minerales Registrados</h2>
 
-    <input v-model="searchQuery" type="text" class="form-control mb-3" placeholder="Buscar mineral..." />
+    <div class="row mb-3">
+      <div class="col-md-4 mb-2">
+        <input v-model="searchQuery" type="text" class="form-control" placeholder="Buscar mineral..." />
+      </div>
+      <div class="col-md-3 mb-2">
+        <select v-model="filterEstatus" class="form-select">
+          <option value="">Filtrar por estatus (todos)</option>
+          <option value="activo">activo</option>
+          <option value="inactivo">inactivo</option>
+        </select>
+      </div>
+      <div class="col-md-2 text-left mb-2">
+        <div class="d-flex align-items-center justify-content-end">
+          <label class="form-label " >Mostrar</label>
+          <select v-model.number="pageSize" class="form-select">
+            <option v-for="s in pageSizes" :key="s" :value="s">{{ s }}</option>
+          </select>
+        </div>
+
+      </div>
+      
+    </div>
 
     <div v-if="loading" class="alert alert-info text-center">
         Cargando información de minerales...
@@ -397,12 +435,12 @@ const confirmarAsignacion = async () => {
                 <tr v-if="sortedFilteredMinerales.length === 0">
                     <td colspan="5" class="text-center">No hay minerales registrados.</td>
                 </tr>
-                <tr v-else v-for="mineral in sortedFilteredMinerales" :key="mineral.id_mineral">
+                <tr v-else v-for="mineral in pagedMinerales" :key="mineral.id_mineral">
                     <td>{{ mineral.clave_mineral || 'N/D' }}</td>
                     <td>{{ mineral.nombre_mineral || 'N/D' }}</td>
                     <td>{{ mineral.procedencia_mineral || 'N/D' }}</td>
                     <td>
-                        <ImageDecoder :encoded-image="mineral.imagen_mineral" alt-text="Imagen del mineral" img-class="img-thumbnail" />
+                        <ImageDecoder :encoded-image="mineral.imagen_mineral" :id="mineral.id_mineral" alt-text="Imagen del mineral" img-class="img-thumbnail" />
                     </td>
                     <td>
                       <button class="btn btn-sm btn-info me-1" @click="verMineral(mineral)">Ver</button>
@@ -414,6 +452,15 @@ const confirmarAsignacion = async () => {
             </tbody>
         </table>
     </div>
+      <div class="d-flex justify-content-between align-items-center mt-3">
+        <div>
+          Mostrando {{ (currentPage-1)*pageSize + 1 }} - {{ Math.min(currentPage*pageSize, totalItems) }} de {{ totalItems }} registros
+        </div>
+        <div class="btn-group">
+          <button class="btn btn-outline-secondary" :disabled="currentPage <= 1" @click="currentPage--">Anterior</button>
+          <button class="btn btn-outline-secondary" :disabled="currentPage >= totalPages" @click="currentPage++">Siguiente</button>
+        </div>
+      </div>
 </div>
 </template>
 
@@ -442,4 +489,6 @@ span,
     margin: 10px;
     padding: 1px;
 }
+
+
 </style>

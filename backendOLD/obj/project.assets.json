@@ -10325,11 +10325,11 @@
   "project": {
     "version": "1.0.0",
     "restore": {
-      "projectUniqueName": "C:\\Users\\georg\\Desktop\\Mina-main\\backend\\backend.csproj",
+      "projectUniqueName": "C:\\Users\\georg\\Desktop\\Mina-main\\backendOLD\\backend.csproj",
       "projectName": "backend",
-      "projectPath": "C:\\Users\\georg\\Desktop\\Mina-main\\backend\\backend.csproj",
+      "projectPath": "C:\\Users\\georg\\Desktop\\Mina-main\\backendOLD\\backend.csproj",
       "packagesPath": "C:\\Users\\georg\\.nuget\\packages\\",
-      "outputPath": "C:\\Users\\georg\\Desktop\\Mina-main\\backend\\obj\\",
+      "outputPath": "C:\\Users\\georg\\Desktop\\Mina-main\\backendOLD\\obj\\",
       "projectStyle": "PackageReference",
       "configFilePaths": [
         "C:\\Users\\georg\\AppData\\Roaming\\NuGet\\NuGet.Config"

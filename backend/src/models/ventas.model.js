@@ -9,11 +9,8 @@ async function getAllVentas() {
       v.iva,
       v.total,
       v.fecha,
-      v.id_user,
-      u.username as vendedor,
       COUNT(vm.id_mineral_venta) as total_minerales
     FROM venta v
-    LEFT JOIN usuarios u ON v.id_user = u.id
     LEFT JOIN venta_minerales vm ON v.id_ventas = vm.id_ventas
     GROUP BY v.id_ventas
     ORDER BY v.fecha DESC
@@ -30,11 +27,8 @@ async function getVentaById(id) {
       v.subtotal,
       v.iva,
       v.total,
-      v.fecha,
-      v.id_user,
-      u.username as vendedor
+      v.fecha
     FROM venta v
-    LEFT JOIN usuarios u ON v.id_user = u.id
     WHERE v.id_ventas = ?
   `, [id]);
 
@@ -69,55 +63,87 @@ async function createVenta(ventaData) {
   try {
     await connection.beginTransaction();
 
-    const { subtotal, iva, total, id_user, minerales } = ventaData;
+    const { subtotal, iva, total, minerales } = ventaData;
 
-    // Validar que el usuario existe
-    const [userExists] = await connection.query(
-      "SELECT id FROM usuarios WHERE id = ?", 
-      [id_user]
-    );
-
-    if (!userExists.length) {
-      throw new Error(`El usuario con ID ${id_user} no existe`);
-    }
-
-    // Insertar la venta principal
+    // Insertar la venta principal (sin id_user)
+    console.log('[ventas.model] Ejecutando INSERT con datos:', { subtotal, iva, total });
     const [ventaResult] = await connection.query(
-      `INSERT INTO venta (subtotal, iva, total, fecha, id_user) 
-       VALUES (?, ?, ?, NOW(), ?)`,
-      [subtotal, iva, total, id_user]
+      `INSERT INTO venta (subtotal, iva, total, fecha) 
+       VALUES (?, ?, ?, NOW())`,
+      [subtotal, iva, total]
     );
+    console.log('[ventas.model] ✅ INSERT exitoso, ID generado:', ventaResult.insertId);
 
     const id_ventas = ventaResult.insertId;
 
     // Insertar los minerales de la venta
     if (minerales && minerales.length > 0) {
-      for (const mineral of minerales) {
-        const { id_mineral_venta } = mineral;
+      for (const mineralItem of minerales) {
+        const { id_mineral_venta } = mineralItem;
 
-        // Verificar que el mineral existe en minerales_venta
-        const [mineralExists] = await connection.query(
-          "SELECT id_mineral FROM minerales_venta WHERE id_mineral = ?", 
-          [id_mineral_venta]
-        );
+        // Verificar que el mineral existe
+        console.log('[ventas.model] Verificando mineral con ID:', id_mineral_venta);
+        
+        try {
+          // Intentar con columna cantidad
+          const [mineralExists] = await connection.query(
+            "SELECT id_mineral, cantidad FROM minerales_venta WHERE id_mineral = ?", 
+            [id_mineral_venta]
+          );
+          console.log('[ventas.model] Resultado búsqueda mineral:', mineralExists);
 
-        if (!mineralExists.length) {
-          throw new Error(`El mineral con ID ${id_mineral_venta} no existe en minerales_venta`);
+          if (!mineralExists.length) {
+            throw new Error(`El mineral con ID ${id_mineral_venta} no existe en minerales_venta`);
+          }
+
+          const mineralData = mineralExists[0];
+          if (mineralData.cantidad !== undefined && mineralData.cantidad <= 0) {
+            throw new Error(`El mineral con ID ${id_mineral_venta} no tiene cantidad disponible`);
+          }
+
+          // Descontar 1 unidad del inventario (solo si existe la columna)
+          if (mineralData.cantidad !== undefined) {
+            console.log('[ventas.model] Descontando 1 unidad del mineral ID:', id_mineral_venta);
+            await connection.query(
+              "UPDATE minerales_venta SET cantidad = cantidad - 1 WHERE id_mineral = ?",
+              [id_mineral_venta]
+            );
+          }
+        } catch (sqlError) {
+          // Si falla por columna cantidad, intentar sin ella
+          console.log('[ventas.model] Columna cantidad no existe, verificando solo existencia');
+          const [mineralExists] = await connection.query(
+            "SELECT id_mineral FROM minerales_venta WHERE id_mineral = ?", 
+            [id_mineral_venta]
+          );
+
+          if (!mineralExists.length) {
+            throw new Error(`El mineral con ID ${id_mineral_venta} no existe en minerales_venta`);
+          }
         }
 
         // Insertar en venta_minerales
+        console.log('[ventas.model] Insertando en venta_minerales:', { id_ventas, id_mineral_venta });
         await connection.query(
           "INSERT INTO venta_minerales (id_ventas, id_mineral_venta) VALUES (?, ?)",
           [id_ventas, id_mineral_venta]
         );
+        console.log('[ventas.model] ✅ Mineral insertado correctamente');
       }
     }
 
     await connection.commit();
     
-    // Obtener la venta completa creada
-    const ventaCompleta = await getVentaById(id_ventas);
-    return ventaCompleta;
+    // Retornar datos básicos de la venta creada
+    console.log('[ventas.model] ✅ Venta creada con éxito, ID:', id_ventas);
+    return {
+      id_ventas,
+      subtotal,
+      iva,
+      total,
+      fecha: new Date(),
+      message: 'Venta creada correctamente'
+    };
 
   } catch (error) {
     await connection.rollback();
@@ -144,14 +170,14 @@ async function updateVenta(id, ventaData) {
       throw new Error(`La venta con ID ${id} no existe`);
     }
 
-    const { subtotal, iva, total, id_user, minerales } = ventaData;
+    const { subtotal, iva, total, minerales } = ventaData;
 
-    // Actualizar datos básicos de la venta
+    // Actualizar datos básicos de la venta (sin id_user)
     await connection.query(
       `UPDATE venta SET 
-        subtotal = ?, iva = ?, total = ?, id_user = ?
+        subtotal = ?, iva = ?, total = ?
        WHERE id_ventas = ?`,
-      [subtotal, iva, total, id_user, id]
+      [subtotal, iva, total, id]
     );
 
     // Si se proporcionan minerales, actualizar la relación
@@ -163,8 +189,8 @@ async function updateVenta(id, ventaData) {
       );
 
       // Insertar nuevos minerales
-      for (const mineral of minerales) {
-        const { id_mineral_venta } = mineral;
+      for (const mineralItem of minerales) {
+        const { id_mineral_venta } = mineralItem;
 
         // Verificar que el mineral existe
         const [mineralExists] = await connection.query(
@@ -233,18 +259,39 @@ async function deleteVenta(id) {
 
 // Obtener minerales disponibles para venta
 async function getMineralesVenta() {
-  const [rows] = await pool.query(`
-    SELECT 
-      id_mineral,
-      clave,
-      nombre,
-      precio,
-      descuento,
-      (precio - (precio * descuento / 100)) as precio_final
-    FROM minerales_venta
-    ORDER BY nombre
-  `);
-  return rows;
+  try {
+    // Intentar con columna cantidad primero
+    const [rows] = await pool.query(`
+      SELECT 
+        id_mineral,
+        clave,
+        nombre,
+        precio,
+        descuento,
+        cantidad,
+        (precio - (precio * descuento / 100)) as precio_final
+      FROM minerales_venta
+      WHERE cantidad > 0
+      ORDER BY nombre
+    `);
+    return rows;
+  } catch (error) {
+    // Si falla (columna cantidad no existe), usar query sin cantidad
+    console.warn('[ventas.model] Columna cantidad no existe, usando query sin cantidad');
+    const [rows] = await pool.query(`
+      SELECT 
+        id_mineral,
+        clave,
+        nombre,
+        precio,
+        descuento,
+        999 as cantidad,
+        (precio - (precio * descuento / 100)) as precio_final
+      FROM minerales_venta
+      ORDER BY nombre
+    `);
+    return rows;
+  }
 }
 
 // Crear/actualizar mineral en minerales_venta
@@ -272,11 +319,8 @@ async function searchVentas(filters) {
       v.iva,
       v.total,
       v.fecha,
-      v.id_user,
-      u.username as vendedor,
       COUNT(vm.id_mineral_venta) as total_minerales
     FROM venta v
-    LEFT JOIN usuarios u ON v.id_user = u.id
     LEFT JOIN venta_minerales vm ON v.id_ventas = vm.id_ventas
     WHERE 1=1
   `;
@@ -288,10 +332,7 @@ async function searchVentas(filters) {
     params.push(filters.fecha_inicio, filters.fecha_fin);
   }
 
-  if (filters.vendedor) {
-    query += " AND u.username LIKE ?";
-    params.push(`%${filters.vendedor}%`);
-  }
+  // Filtro por vendedor eliminado (ya no hay vendedor)
 
   if (filters.total_min) {
     query += " AND v.total >= ?";

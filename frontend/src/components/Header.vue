@@ -5,9 +5,10 @@
 <template>
   <div class="header">
   <div class="header-row">
-   <img class="logo "src="../assets/ejemplo.png" alt="Logo" />
-    <p>MINA DEL EDEN</p>
-   <img class="logo "src="../assets/ejemplo.png" alt="Logo" />
+   <!--<img class="logo "src="../assets/minaeleden.png" alt="Logo" />-->
+   <img class="logo "src="../assets/mina.svg" alt="Logo" />
+    <div class="titulo">Sistema de Gestión de Mina El Edén</div>
+   <img class="logo "src="../assets/mina.svg" alt="Logo" />
    </div>
   </div>
 </template>
@@ -20,13 +21,14 @@
   right: 0;
   height: 150px;
   background-color: #e8670b;
+  /*background-color: #757676;*/
   z-index: 1000;
   text-align: center;
 }
 
 .logo {
-  width: 100px;
-  height: 100px;
+  width: 150px;
+  height: 150px;
   margin: 0 20px;
 }
 

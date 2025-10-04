@@ -12,15 +12,19 @@
     "@coreui/vue": "^5.5.0",
     "axios": "^1.10.0",
     "bcrypt": "^6.0.0",
-    "bootstrap": "^5.3.7",
+    "bootstrap": "^5.3.8",
     "bootstrap-icons": "^1.13.1",
+    "bootstrap-vue-next": "^0.40.5",
     "coreui": "^0.1.5",
     "datatables.net": "^2.3.2",
     "datatables.net-dt": "^2.3.2",
+    "file-saver": "^2.0.5",
     "jquery": "^3.7.1",
+    "jszip": "^3.10.1",
     "vue": "^3.5.13",
     "vue-final-modal": "^4.5.5",
-    "vue-router": "^4.5.1"
+    "vue-router": "^4.5.1",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@vitejs/plugin-vue": "^5.2.3",

@@ -12,8 +12,14 @@ router.get("/mineral", authenticateToken, mineralController.getMineralByMineral)
 // GET /api/mineral/fosil - Solo tipo "Fosil"  
 router.get("/fosil", authenticateToken, mineralController.getMineralByFosil);
 
-// POST /api/mineral
-router.post("/", authenticateToken, authorizeRole("admin"), mineralController.createMineral);
+// POST /api/mineral - Temporalmente sin autorización de admin para testing
+router.post("/", authenticateToken, mineralController.createMineral);
+
+// POST /api/mineral/test - Ruta de prueba sin autenticación
+router.post("/test", mineralController.createMineral);
+
+// GET /api/mineral/image/:id - Servir imagen del mineral (pública, carga directa)
+router.get('/image/:id', mineralController.getMineralImage);
 
 // GET /api/mineral/:id
 router.get("/:id", authenticateToken, mineralController.getMineralById);

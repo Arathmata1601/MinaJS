@@ -1,0 +1,12 @@
+HTTP/1.1 200 OK
+X-Powered-By: Express
+Vary: Origin
+Access-Control-Allow-Credentials: true
+Access-Control-Expose-Headers: Content-Length,X-Foo,X-Bar
+Content-Type: image/jpeg
+Content-Length: 12615
+ETag: W/"3147-8r80A7CNdixv/AJ0r0M9GHHSsko"
+Date: Mon, 29 Sep 2025 02:20:59 GMT
+Connection: keep-alive
+Keep-Alive: timeout=5
+

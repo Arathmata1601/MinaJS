@@ -5,32 +5,32 @@ export async function obtenerMineralesTipo() {
   
   try {
     console.log('Llamando a mineralService.getMineralByMineral()...');
+    const t0 = performance.now();
     // Usar el servicio centralizado en lugar de axios directo
     const response = await mineralService.getMineralByMineral()
-    
-    console.log('Respuesta recibida:', response);
+    const t1 = performance.now();
+    console.log(`API responded in ${(t1 - t0).toFixed(2)} ms`);
+
+    console.log('Respuesta recibida (summary):', Array.isArray(response) ? `Array length=${response.length}` : response);
     
     if (!response || !Array.isArray(response)) {
       console.warn('Respuesta no es un array válido:', response);
       return []
     }
 
+    // IMPORTANTE: para evitar bloquear el hilo principal, NO convertimos aquí Buffers grandes a Base64.
+    // En su lugar mantenemos strings si ya vienen en ese formato, o null si vienen como Buffer.
+    // Esto acelera la carga. La conversión/descarga de la imagen se debe hacer bajo demanda (lazy-load) o en un Web Worker.
+    const startProcess = performance.now();
     const processedData = response.map(item => {
-      console.log('Procesando item:', item);
-      
-      // Convertir imagen Buffer a Base64 string si existe
       let imagenString = null
       if (item.imagen_mineral) {
-        if (typeof item.imagen_mineral === 'object' && item.imagen_mineral.type === 'Buffer') {
-          // Convertir Buffer a Base64
-          const uint8Array = new Uint8Array(item.imagen_mineral.data)
-          const binary = uint8Array.reduce((data, byte) => data + String.fromCharCode(byte), '')
-          imagenString = `data:image/jpeg;base64,${btoa(binary)}`
-          console.log('Imagen convertida de Buffer a Base64');
-        } else if (typeof item.imagen_mineral === 'string') {
-          // Ya es string, usarla directamente
+        if (typeof item.imagen_mineral === 'string') {
+          // Ya es string (probablemente base64 o URL) — lo usamos directamente
           imagenString = item.imagen_mineral
-          console.log('Imagen ya es string');
+        } else {
+          // Si viene como Buffer u objeto binario, lo saltamos aquí para no bloquear la UI
+          imagenString = null
         }
       }
 
@@ -43,8 +43,8 @@ export async function obtenerMineralesTipo() {
         imagen_mineral: imagenString
       }
     });
-    
-    console.log('Datos procesados:', processedData);
+    const endProcess = performance.now();
+    console.log(`Procesamiento (map) de ${response.length} items: ${(endProcess - startProcess).toFixed(2)} ms`);
     return processedData;
     
   } catch (error) {

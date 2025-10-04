@@ -22,7 +22,7 @@ router.post("/minerales", authenticateToken, authorizeRole(['admin', 'supervisor
 router.get("/:id", authenticateToken, ventasController.getVentaById);
 
 // POST /api/ventas - Crear nueva venta
-router.post("/", authenticateToken, authorizeRole(['admin', 'vendedor', 'supervisor']), ventasController.createVenta);
+router.post("/", authenticateToken, ventasController.createVenta);
 
 // PUT /api/ventas/:id - Actualizar venta
 router.put("/:id", authenticateToken, authorizeRole(['admin', 'supervisor']), ventasController.updateVenta);
