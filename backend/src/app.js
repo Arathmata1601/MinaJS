@@ -26,7 +26,7 @@ app.use(cors({
 // Manejar peticiones OPTIONS explícitamente (removido porque CORS ya lo maneja automáticamente)
 // app.options('*', cors());
 // Aumentar límite para cuerpos grandes (por ejemplo subidas multipart y JSON grandes)
-const MAX_BODY_SIZE = process.env.MAX_BODY_SIZE || '500mb';
+const MAX_BODY_SIZE = process.env.MAX_BODY_SIZE || '50gb';
 console.log('📦 Configuración de límites de body:', { maxBodySize: MAX_BODY_SIZE });
 app.use(express.json({ limit: MAX_BODY_SIZE }));
 app.use(express.urlencoded({ extended: true, limit: MAX_BODY_SIZE }));
