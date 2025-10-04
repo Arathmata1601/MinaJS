@@ -32,12 +32,12 @@ app.use(express.json({ limit: MAX_BODY_SIZE }));
 app.use(express.urlencoded({ extended: true, limit: MAX_BODY_SIZE }));
 
 // Rutas
-// const userRoutes = require("./routes/user.routes");
+const userRoutes = require("./routes/user.routes");
 const authRoutes = require("./routes/auth.routes");
-// const mineralRoutes = require("./routes/mineral.routes");
-// const salaRoutes = require("./routes/salas.routes");
-// const inventarioRoutes = require("./routes/inventario.routes");
-// const ventasRoutes = require("./routes/ventas.routes");
+const mineralRoutes = require("./routes/mineral.routes");
+const salaRoutes = require("./routes/salas.routes");
+const inventarioRoutes = require("./routes/inventario.routes");
+const ventasRoutes = require("./routes/ventas.routes");
 const importRoutes = require("./routes/import.routes");
 
 
@@ -50,13 +50,12 @@ app.get("/api/health", (req, res) => {
   });
 });
 
-// Comentar temporalmente las rutas para encontrar el problema
+app.use("/api/users", userRoutes);
 app.use("/api/auth", authRoutes);
-// app.use("/api/users", userRoutes);
-// app.use("/api/mineral", mineralRoutes);
-// app.use("/api/salas", salaRoutes);
-// app.use("/api/inventario", inventarioRoutes);
-// app.use("/api/ventas", ventasRoutes);
+app.use("/api/mineral", mineralRoutes);
+app.use("/api/salas", salaRoutes);
+app.use("/api/inventario", inventarioRoutes);
+app.use("/api/ventas", ventasRoutes);
 app.use("/api/import", importRoutes);
 
 // Servir imágenes estáticas (guardadas por el import)
