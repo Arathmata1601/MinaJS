@@ -36,7 +36,10 @@ const pool = mysql.createPool({
   database: "b9i0yygjpbierbqjddid",
   port: 3306,
   waitForConnections: true,
-  connectionLimit: 10,
+  connectionLimit: 3,           // Reducir a 3 conexiones (límite de 5 en Clever Cloud)
+  acquireTimeout: 60000,        // 60 segundos para obtener conexión
+  timeout: 60000,               // 60 segundos timeout por query
+  reconnect: true,              // Reconectar automáticamente
   queueLimit: 0
 });
 
