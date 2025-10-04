@@ -6,7 +6,18 @@ const { pool } = require('../config/db')
 
 // Multer in-memory storage (we'll stream buffers) with file size limit
 const storage = multer.memoryStorage()
-const upload = multer({ storage, limits: { fileSize: 100 * 1024 * 1024 } }) // 100 MB
+const MAX_FILE_SIZE = process.env.MAX_FILE_SIZE ? parseInt(process.env.MAX_FILE_SIZE) * 1024 * 1024 : 500 * 1024 * 1024;
+console.log('📦 Configuración de límites de archivo:', { maxFileSize: `${MAX_FILE_SIZE / (1024 * 1024)}MB` });
+
+const upload = multer({ 
+  storage, 
+  limits: { 
+    fileSize: MAX_FILE_SIZE,       // Configurable via env var
+    fieldSize: MAX_FILE_SIZE,      // Same limit for field values
+    fields: 1000,                  // Number of non-file fields
+    files: 100                     // Number of files
+  } 
+})
 
 // Helper: ensure directory exists
 function ensureDir(dirPath) {

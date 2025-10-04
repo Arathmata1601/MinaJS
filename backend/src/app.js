@@ -26,8 +26,10 @@ app.use(cors({
 // Manejar peticiones OPTIONS explícitamente (removido porque CORS ya lo maneja automáticamente)
 // app.options('*', cors());
 // Aumentar límite para cuerpos grandes (por ejemplo subidas multipart y JSON grandes)
-app.use(express.json({ limit: '100mb' }));
-app.use(express.urlencoded({ extended: true, limit: '100mb' }));
+const MAX_BODY_SIZE = process.env.MAX_BODY_SIZE || '500mb';
+console.log('📦 Configuración de límites de body:', { maxBodySize: MAX_BODY_SIZE });
+app.use(express.json({ limit: MAX_BODY_SIZE }));
+app.use(express.urlencoded({ extended: true, limit: MAX_BODY_SIZE }));
 
 // Rutas
 // const userRoutes = require("./routes/user.routes");
@@ -68,7 +70,17 @@ app.use((err, req, res, next) => {
 
   // Multer file size limit produces a MulterError with code 'LIMIT_FILE_SIZE'
   if (err.code === 'LIMIT_FILE_SIZE' || err.type === 'entity.too.large' || err.status === 413) {
-    return res.status(413).json({ error: 'Payload too large. Increase server limits or upload a smaller file.' })
+    console.error('📦 Payload too large error:', {
+      code: err.code,
+      type: err.type,
+      status: err.status,
+      message: err.message
+    });
+    return res.status(413).json({ 
+      error: 'Archivo demasiado grande. Límite máximo: 500MB. Por favor, use un archivo más pequeño.',
+      maxSize: '500MB',
+      errorCode: err.code || 'PAYLOAD_TOO_LARGE'
+    })
   }
 
   // Default handler
