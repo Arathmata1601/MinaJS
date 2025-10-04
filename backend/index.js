@@ -39,3 +39,6 @@ process.on('unhandledRejection', (reason, promise) => {
 const server = app.listen(PORT, () => {
   console.log(`Servidor escuchando en http://localhost:${PORT}`);
 });
+
+// Aumentar timeout para archivos grandes (30 minutos)
+server.timeout = 30 * 60 * 1000; // 30 minutes
