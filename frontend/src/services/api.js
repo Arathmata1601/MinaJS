@@ -175,7 +175,10 @@ class ApiService {
         console.error('🚨 Usuario actual:', localStorage.getItem('user'));
         localStorage.removeItem('token');
         localStorage.removeItem('user');
-        window.location.href = '/login';
+        // En lugar de window.location, usar router push o reload
+        if (typeof window !== 'undefined') {
+          window.location.reload(); // Recargar la página para que Vue Router maneje la redirección
+        }
         return;
       }
       
