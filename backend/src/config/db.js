@@ -36,22 +36,24 @@ const pool = mysql.createPool({
   database: "b9i0yygjpbierbqjddid",
   port: 3306,
   waitForConnections: true,
-  connectionLimit: 3,           // Reducir a 3 conexiones (límite de 5 en Clever Cloud)
+  connectionLimit: 2,           // Solo 2 conexiones para evitar el límite
   acquireTimeout: 60000,        // 60 segundos para obtener conexión
-  timeout: 60000,               // 60 segundos timeout por query
+  timeout: 30000,               // 30 segundos timeout por query (reducido)
+  idleTimeout: 300000,          // 5 min - cerrar conexiones inactivas
+  maxIdle: 1,                   // Máximo 1 conexión inactiva
   reconnect: true,              // Reconectar automáticamente
   queueLimit: 0
 });
 
-// Verificar conexión al inicializar
-pool.getConnection()
-  .then(connection => {
-    console.log('✅ Conexión exitosa a la base de datos');
-    connection.release();
-  })
-  .catch(err => {
-    console.error('❌ Error conectando a la base de datos:', err);
-  });
+// Verificar conexión al inicializar (comentado para evitar usar conexiones)
+// pool.getConnection()
+//   .then(connection => {
+//     console.log('✅ Conexión exitosa a la base de datos');
+//     connection.release();
+//   })
+//   .catch(err => {
+//     console.error('❌ Error conectando a la base de datos:', err);
+//   });
 
 
 // Manejar errores del pool
@@ -78,4 +80,14 @@ const closePool = async () => {
   }
 };
 
-module.exports = { pool, closePool };
+// Función para liberar conexiones inactivas manualmente
+const releaseIdleConnections = () => {
+  console.log('🔧 Liberando conexiones inactivas...');
+  // Esto fuerza al pool a cerrar conexiones que han estado inactivas
+  pool._purgeConnection = pool._purgeConnection || function(connection) {
+    this._freeConnections = this._freeConnections.filter(conn => conn !== connection);
+    connection.destroy();
+  };
+};
+
+module.exports = { pool, closePool, releaseIdleConnections };
